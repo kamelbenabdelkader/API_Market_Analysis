@@ -303,15 +303,16 @@ async def update_item(item_id: int, item: Test):
     return {"message": f"Item with ID {item_id} updated successfully"}
 
 
-@app.delete("/delete/{item_id}")
-async def delete_item(item_id: int):
-    # Effectuer des opérations sur la base de données
-    with conn.cursor() as cursor:
-        query = "DELETE FROM test WHERE id = %s"
-        cursor.execute(query, item_id)
-        conn.commit()
 
-    return {"message": f"Item with ID {item_id} deleted successfully"}
+# @app.delete("/delete/{item_id}")
+# async def delete_item(item_id: int):
+#     # Effectuer des opérations sur la base de données
+#     with conn.cursor() as cursor:
+#         query = "DELETE FROM test WHERE id = %s"
+#         cursor.execute(query, item_id)
+#         conn.commit()
+
+#     return {"message": f"Item with ID {item_id} deleted successfully"}
 
 # # 4. Run the API with uvicorn
 # #    Will run on http://127.0.0.1:8000
