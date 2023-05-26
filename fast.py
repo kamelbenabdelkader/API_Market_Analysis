@@ -105,7 +105,7 @@ async def get_items_country(country: str):
     query = """
         SELECT InvoiceNo, Description, SUM(Quantity) AS TotalQuantity
         FROM base_sql_basket
-        WHERE Country = ?
+        WHERE Country = %s
         GROUP BY InvoiceNo, Description
     """
 
@@ -121,8 +121,6 @@ async def get_items_country(country: str):
 
     # Retourne les résultats
     return {"items": results}
-
-
 
 
 # # 4. Run the API with uvicorn
