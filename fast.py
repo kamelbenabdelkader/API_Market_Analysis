@@ -86,6 +86,24 @@ async def get_items():
     return {"items": results}
 
 
+@app.get("/france")
+async def get_items():
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM base_sql_basket WHERE Country = 'France' LIMIT 10")
+        results = cursor.fetchall()
+    conn.close()
+    return {"items": results}
+
+@app.get("/portugal")
+async def get_items():
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM base_sql_basket WHERE Country = 'Portugal' LIMIT 10")
+        results = cursor.fetchall()
+    conn.close()
+    return {"items": results}
+
 # # 4. Run the API with uvicorn
 # #    Will run on http://127.0.0.1:8000
 if __name__ == '__main__':
