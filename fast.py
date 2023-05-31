@@ -90,7 +90,16 @@ async def get_items():
 async def get_items_france():
     conn = connect()
     with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM base_sql_basket WHERE Country = 'France' LIMIT 10")
+        cursor.execute("SELECT * FROM base_sql_basket WHERE Country = 'France'")
+        results = cursor.fetchall()
+    conn.close()
+    return {"items": results}
+
+@app.get("/portugal")
+async def get_items_portugal():
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM base_sql_basket WHERE Country = 'Portugal'")
         results = cursor.fetchall()
     conn.close()
     return {"items": results}
