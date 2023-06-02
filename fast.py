@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 import os
 import pickle
-import pandas as pd
+
 
 # Charger les variables d'environnement à partir du fichier .env
 load_dotenv()
@@ -18,6 +18,10 @@ app = FastAPI()
 
 # Load the pickled model
 # model = pickle.load(open('model.pkl', 'rb'))
+
+# Chargement du fichier pickle
+with open('basket_pays.pkl', 'rb') as f:
+    data_dict = pickle.load(f)
 
 
 def connect():
@@ -40,50 +44,10 @@ def connect():
     )
     return conn
 
-# Petit test de co avec method get sur le home /
-# @app.get("/")
-# async def get_items() -> List[Data]:
-#     # Effectuer des opérations sur la base de données
-#     with conn.cursor() as cursor:
-#         cursor.execute("SELECT * FROM data")
-#         results = cursor.fetchall()
-
-#     # Convertir les résultats en une liste d'objets Test a refacto par la suite
-#     items = []
-#     for row in results:
-#         data_dict = {
-#             "id": row[0],
-#             "QUARTER" : row[1],
-#             "MONTH" : row[2],
-#             "DAY_OF_MONTH" : row[3],
-#             "DAY_OF_WEEK": row[4],
-#             "ORIGIN_AIRPORT_ID": row[5],
-#             "DEST_AIRPORT_ID": row[6],
-#             "DEP_TIME": row[7],
-#             "ARR_TIME": row[8],
-#             "VACATION": row[9]
-#         }
-
-#         data_user = Data(**data_dict)
-#         items.append(data_user)
-
-#     # Retourner les résultats de l'API
-#     return items
-
 
 @app.get("/")
 async def get_homes():
     return {"Hello": "la P21"}
-
-
-@app.get("/test")
-async def get_items():
-    conn = connect()
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM base_sql_basket LIMIT 6")
-        results = cursor.fetchall()
-    conn.close()
-    return {"items": results}
 
 
 @app.get("/france")
@@ -95,14 +59,17 @@ async def get_items_france():
     conn.close()
     return {"items": results}
 
-@app.get("/portugal")
+@app.get("/portugal", response_model=List[BaseSqlBasket])
 async def get_items_portugal():
     conn = connect()
+    items = []
     with conn.cursor() as cursor:
         cursor.execute("SELECT * FROM base_sql_basket WHERE Country = 'Portugal'")
         results = cursor.fetchall()
+        for row in results:
+            item = dict(zip(cursor.column_names, row))
+            items.append(BaseSqlBasket(**item))
     conn.close()
-    return {"items": results}
 
 
 @app.get("/{country}")
@@ -130,6 +97,42 @@ async def get_items_country(country: str):
 
     # Retourne les résultats
     return {"items": results}
+
+@app.get("/france")
+async def get_items_france():
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM base_sql_basket WHERE Country = 'France'")
+        results = cursor.fetchall()
+    conn.close()
+    return {"items": results}
+
+
+# @app.get("/country/{country}")
+# async def get_items_country(country: str):
+#     conn = connect()
+#     with conn.cursor() as cursor:
+#         cursor.execute(f"SELECT * FROM base_sql_basket WHERE Country = '{country}'")
+#         results = cursor.fetchall()
+#     conn.close()
+#     return {"items": results}
+
+
+
+# # Définition de la route de l'API
+# @app.get("/data/{pays}")
+# def get_data(pays: str):
+#     if pays in data_dict:
+#         data = data_dict[pays]
+#         # Convertir DataFrame en dictionnaire JSON
+#         data_dict_json = data.to_dict(orient="records")
+#         # Sérialiser le dictionnaire en JSON
+#         data_json = json.dumps(data_dict_json)
+#         return data_json
+#     else:
+#         return {"error": "Pays non trouvé"}
+
+
 
 
 # # 4. Run the API with uvicorn
